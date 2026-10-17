@@ -1,0 +1,9 @@
+# Used by the (commented) caddy service in compose.yaml once the site moves to the VPS.
+mrentro.com {
+	encode zstd gzip
+	reverse_proxy site:8080
+}
+
+www.mrentro.com {
+	redir https://mrentro.com{uri} permanent
+}

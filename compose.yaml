@@ -1,0 +1,34 @@
+# VPS deployment: the site container serves plain HTTP on localhost:8080.
+# TLS terminates in front of it (Caddy below, to be enabled on the VPS).
+services:
+  site:
+    build: .
+    image: mrentro-site
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "127.0.0.1:8080:8080"
+
+  # Enable on the VPS (pin the image by digest first). Point DNS at the VPS,
+  # then remove the `ports` mapping above so only Caddy is exposed.
+  # caddy:
+  #   image: caddy:2-alpine
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+  #     - caddy-data:/data
+  #     - caddy-config:/config
+  #   depends_on:
+  #     - site
+# volumes:
+#   caddy-data:
+#   caddy-config:

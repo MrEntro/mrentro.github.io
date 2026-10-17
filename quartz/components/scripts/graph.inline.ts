@@ -15,6 +15,8 @@ import {
   zoom,
 } from "d3"
 import { Text, Graphics, Application, Container, Circle } from "pixi.js"
+// eval-free shader/uniform code paths, so the graph works under a CSP without unsafe-eval
+import "pixi.js/unsafe-eval"
 import { Group as TweenGroup, Tween as Tweened } from "@tweenjs/tween.js"
 import { registerEscapeHandler, removeAllChildren } from "./util"
 import { FullSlug, SimpleSlug, getFullSlug, resolveRelative, simplifySlug } from "../../util/path"

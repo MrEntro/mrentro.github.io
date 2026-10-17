@@ -8,6 +8,7 @@ import { i18n } from "../i18n"
 import { FileTrieNode } from "../util/fileTrie"
 import OverflowListFactory from "./OverflowList"
 import { concatenateResources } from "../util/resources"
+import { defaultFilterFn, defaultMapFn, defaultSortFn } from "./explorerDefaults"
 
 type OrderEntries = "sort" | "filter" | "map"
 
@@ -26,27 +27,9 @@ const defaultOptions: Options = {
   folderDefaultState: "collapsed",
   folderClickBehavior: "link",
   useSavedState: true,
-  mapFn: (node) => {
-    return node
-  },
-  sortFn: (a, b) => {
-    // Sort order: folders first, then files. Sort folders and files alphabeticall
-    if ((!a.isFolder && !b.isFolder) || (a.isFolder && b.isFolder)) {
-      // numeric: true: Whether numeric collation should be used, such that "1" < "2" < "10"
-      // sensitivity: "base": Only strings that differ in base letters compare as unequal. Examples: a ≠ b, a = á, a = A
-      return a.displayName.localeCompare(b.displayName, undefined, {
-        numeric: true,
-        sensitivity: "base",
-      })
-    }
-
-    if (!a.isFolder && b.isFolder) {
-      return 1
-    } else {
-      return -1
-    }
-  },
-  filterFn: (node) => node.slugSegment !== "tags",
+  mapFn: defaultMapFn,
+  sortFn: defaultSortFn,
+  filterFn: defaultFilterFn,
   order: ["filter", "map", "sort"],
 }
 
@@ -71,9 +54,10 @@ export default ((userOpts?: Partial<Options>) => {
         data-savestate={opts.useSavedState}
         data-data-fns={JSON.stringify({
           order: opts.order,
-          sortFn: opts.sortFn.toString(),
-          filterFn: opts.filterFn.toString(),
-          mapFn: opts.mapFn.toString(),
+          // only custom functions are serialized; the script has the defaults built in
+          sortFn: opts.sortFn === defaultSortFn ? undefined : opts.sortFn.toString(),
+          filterFn: opts.filterFn === defaultFilterFn ? undefined : opts.filterFn.toString(),
+          mapFn: opts.mapFn === defaultMapFn ? undefined : opts.mapFn.toString(),
         })}
       >
         <button

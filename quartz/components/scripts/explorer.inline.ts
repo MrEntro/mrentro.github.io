@@ -1,6 +1,7 @@
 import { FileTrieNode } from "../../util/fileTrie"
 import { FullSlug, resolveRelative, simplifySlug } from "../../util/path"
 import { ContentDetails } from "../../plugins/emitters/contentIndex"
+import { defaultFilterFn, defaultMapFn, defaultSortFn } from "../explorerDefaults"
 
 type MaybeHTMLElement = HTMLElement | undefined
 
@@ -160,9 +161,9 @@ async function setupExplorer(currentSlug: FullSlug) {
       folderDefaultState: (explorer.dataset.collapsed || "collapsed") as "collapsed" | "open",
       useSavedState: explorer.dataset.savestate === "true",
       order: dataFns.order || ["filter", "map", "sort"],
-      sortFn: new Function("return " + (dataFns.sortFn || "undefined"))(),
-      filterFn: new Function("return " + (dataFns.filterFn || "undefined"))(),
-      mapFn: new Function("return " + (dataFns.mapFn || "undefined"))(),
+      sortFn: dataFns.sortFn ? new Function("return " + dataFns.sortFn)() : defaultSortFn,
+      filterFn: dataFns.filterFn ? new Function("return " + dataFns.filterFn)() : defaultFilterFn,
+      mapFn: dataFns.mapFn ? new Function("return " + dataFns.mapFn)() : defaultMapFn,
     }
 
     // Get folder state from local storage
