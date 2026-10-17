@@ -1,0 +1,10 @@
+.git
+.github
+node_modules
+public
+.quartz-cache
+prof
+/README.md
+compose.yaml
+Dockerfile
+.dockerignore

@@ -1,0 +1,31 @@
+name: Container
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build image
+        run: docker build -t mrentro-site .
+      - name: Run with the compose hardening
+        run: |
+          docker run -d --name site -p 127.0.0.1:8080:8080 \
+            --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges:true \
+            mrentro-site
+          for i in $(seq 1 20); do curl -fs -o /dev/null http://127.0.0.1:8080/ && break; sleep 1; done
+      - name: Smoke test
+        run: deploy/smoke-test.sh http://127.0.0.1:8080
+      - name: Container logs
+        if: always()
+        run: docker logs site

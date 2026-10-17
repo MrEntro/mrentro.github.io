@@ -206,7 +206,9 @@ if (!customElements.get("route-announcer")) {
       }
       connectedCallback() {
         for (const [key, value] of Object.entries(attrs)) {
-          this.setAttribute(key, value)
+          // CSSOM instead of a style attribute, which the CSP blocks
+          if (key === "style") this.style.cssText = value
+          else this.setAttribute(key, value)
         }
       }
     },
