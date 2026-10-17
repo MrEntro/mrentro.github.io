@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- build: Quartz -> static files + generated CSP ----
-FROM node:22.16.0-bookworm-slim@sha256:048ed02c5fd52e86fda6fbd2f6a76cf0d4492fd6c6fee9e2c463ed5108da0e34 AS build
+FROM node:26.11.1-bookworm-slim@sha256:86f07bc9c5dce4578cf37e5a418b7bfc7f817cda25cde66e2b66e95ed86c4567 AS build
 WORKDIR /site
 COPY package.json package-lock.json .npmrc ./
 RUN npm ci --no-audit --no-fund
