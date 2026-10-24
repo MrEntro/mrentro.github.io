@@ -10,7 +10,7 @@ ENV QUARTZ_ENV=production
 RUN npx quartz build && node deploy/csp.mjs public /csp.conf
 
 # ---- serve: unprivileged nginx, static files only ----
-FROM nginxinc/nginx-unprivileged:1.30.6-alpine-slim@sha256:4ac59c85c8c46d9e91eaabd2122cda4923ba380cf11f4138e389f069bcdc77a3
+FROM nginxinc/nginx-unprivileged:1.31.7-alpine-slim@sha256:a8cb0f33d51fa107c96fd2bd3a71aaf564ec131e9d2bdf8700944f0ed8b170d7
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY deploy/security-headers.conf /etc/nginx/snippets/security-headers.conf
 COPY --from=build /csp.conf /etc/nginx/snippets/csp.conf
