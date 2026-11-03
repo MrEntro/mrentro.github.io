@@ -30,6 +30,7 @@ const left = [
 // the home page (content/index.md) renders its intro text followed by the timeline
 export const defaultContentPageLayout: PageLayout & Pick<FullPageLayout, "afterBody"> = {
   beforeBody: [
+    Component.DraftBadge(),
     Component.TopNav(),
     Component.PostHeader(),
     Component.SeriesNav({ position: "top" }),

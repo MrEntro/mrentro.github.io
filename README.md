@@ -30,7 +30,9 @@ The build fails on entries that break these rules.
 
 ## Launch mode
 
-`LAUNCH_MODE` in `quartz.config.ts`. When `true`, the build only emits the teaser home page and the 404 page.
+`LAUNCH_MODE` in `quartz.config.ts`. When `true`, the build only emits the teaser home page and the 404 page. It reads `MRENTRO_LAUNCH_MODE`: unset or `"true"` = teaser only (production default), `"false"` = full site (used by MrEntro Studio previews).
+
+`studioPreview: draft` in frontmatter shows a DRAFT badge on the page (`DraftBadge`). Studio sets it on preview copies only; it is never published.
 
 ## Container (VPS)
 
@@ -43,7 +45,7 @@ Two-stage `Dockerfile`: Node builds the site, unprivileged nginx serves `public/
 
 ## Changes to upstream Quartz
 
-Custom files: `quartz/components/{Timeline,TopNav,PostHeader,SeriesNav,SeriesList,TagCloud,Brand,Teaser,Empty}.tsx`, `quartz/plugins/filters/{launchMode,frontmatterCheck}.ts`, `quartz/plugins/emitters/{taxonomyPage.tsx,emptyContentIndex.ts}`, `quartz/util/stream.ts`, `quartz/styles/custom.scss`.
+Custom files: `quartz/components/{Timeline,TopNav,PostHeader,SeriesNav,SeriesList,TagCloud,Brand,Teaser,Empty,DraftBadge}.tsx`, `quartz/plugins/filters/{launchMode,frontmatterCheck}.ts`, `quartz/plugins/emitters/{taxonomyPage.tsx,emptyContentIndex.ts}`, `quartz/util/stream.ts`, `quartz/styles/custom.scss`.
 
 Edited upstream files:
 

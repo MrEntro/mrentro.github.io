@@ -26,6 +26,7 @@ import ConditionalRender from "./ConditionalRender"
 import Timeline from "./Timeline"
 import TopNav from "./TopNav"
 import PostHeader from "./PostHeader"
+import DraftBadge from "./DraftBadge"
 import SeriesNav from "./SeriesNav"
 import SeriesList from "./SeriesList"
 import TagCloud from "./TagCloud"
@@ -62,6 +63,7 @@ export {
   Timeline,
   TopNav,
   PostHeader,
+  DraftBadge,
   SeriesNav,
   SeriesList,
   TagCloud,

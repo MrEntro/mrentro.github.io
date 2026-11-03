@@ -5,9 +5,9 @@ import { teaserPageLayout } from "./quartz.layout"
 
 /**
  * Launch mode: the build contains only the teaser home page and the 404 page.
- * Flip to false with the first publication.
+ * On unless MRENTRO_LAUNCH_MODE is "false" (Studio previews). Flip the default with the first publication.
  */
-const LAUNCH_MODE = true
+const LAUNCH_MODE = (process.env.MRENTRO_LAUNCH_MODE ?? "true") === "true"
 
 /** Umami Cloud website ID (public). Analytics are injected in production builds only. */
 const UMAMI_WEBSITE_ID = ""
