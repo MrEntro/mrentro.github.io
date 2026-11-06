@@ -25,4 +25,5 @@ export const defaultSortFn = (a: FileTrieNode, b: FileTrieNode) => {
   }
 }
 
-export const defaultFilterFn = (node: FileTrieNode) => node.slugSegment !== "tags"
+export const defaultFilterFn = (node: FileTrieNode) =>
+  !["tags", "timeline", "categories"].includes(node.slugSegment)

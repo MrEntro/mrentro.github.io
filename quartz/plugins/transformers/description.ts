@@ -28,7 +28,12 @@ export const Description: QuartzTransformerPlugin<Partial<Options>> = (userOpts)
       return [
         () => {
           return async (tree: HTMLRoot, file) => {
-            let frontMatterDescription = file.data.frontmatter?.description
+            // MrEntro: `summary` (the content model's field) is the meta description too
+            let frontMatterDescription =
+              file.data.frontmatter?.description ??
+              (typeof file.data.frontmatter?.summary === "string"
+                ? file.data.frontmatter.summary
+                : undefined)
             let text = escapeHTML(toString(tree))
 
             if (opts.replaceExternalLinks) {

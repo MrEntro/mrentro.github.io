@@ -26,7 +26,11 @@ seriesOrder: number # required if series is set
 summary: string # optional, falls back to first paragraph
 ```
 
-The build fails on entries that break these rules.
+The build fails on entries that break these rules. `summary` is also the page's meta description.
+
+## Home page (Studio Face)
+
+`content/face.json` (written by MrEntro Studio, "Studio Face") drives the home page and the accent colours: hero, intro (`content/index.md`), sections (latest teasers, featured, categories, links), layout. It holds public data only: featured entries as slugs, and only categories that have a published entry. Missing file = defaults. The full stream is at `/timeline/` (`content/timeline.md`), the category list at `/categories/` (`content/categories.md`).
 
 ## Launch mode
 
@@ -45,12 +49,13 @@ Two-stage `Dockerfile`: Node builds the site, unprivileged nginx serves `public/
 
 ## Changes to upstream Quartz
 
-Custom files: `quartz/components/{Timeline,TopNav,PostHeader,SeriesNav,SeriesList,TagCloud,Brand,Teaser,Empty,DraftBadge}.tsx`, `quartz/plugins/filters/{launchMode,frontmatterCheck}.ts`, `quartz/plugins/emitters/{taxonomyPage.tsx,emptyContentIndex.ts}`, `quartz/util/stream.ts`, `quartz/styles/custom.scss`.
+Custom files: `quartz/components/{Timeline,TopNav,PostHeader,SeriesNav,SeriesList,TagCloud,Brand,Teaser,Empty,DraftBadge,FaceHero,FaceSections}.tsx`, `quartz/plugins/filters/{launchMode,frontmatterCheck}.ts`, `quartz/plugins/emitters/{taxonomyPage.tsx,emptyContentIndex.ts}`, `quartz/util/{stream,face}.ts`, `quartz/styles/custom.scss`.
 
 Edited upstream files:
 
 - `quartz/components/pages/404.tsx`: signal-style 404
 - `quartz/components/scripts/graph.inline.ts`: nodes coloured by type; `pixi.js/unsafe-eval` import so the graph runs without `unsafe-eval`
 - `quartz/components/Head.tsx`: removed cdnjs preconnect
+- `quartz/plugins/transformers/description.ts`: falls back to frontmatter `summary`
 - `quartz/components/Explorer.tsx`, `quartz/components/scripts/explorer.inline.ts` (+ new `explorerDefaults.ts`): default sort/filter/map functions are shared code instead of strings revived with `new Function`
 - `quartz/components/scripts/spa.inline.ts`: route announcer styled via CSSOM instead of a `style` attribute

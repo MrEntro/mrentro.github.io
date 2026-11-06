@@ -32,6 +32,8 @@ import SeriesList from "./SeriesList"
 import TagCloud from "./TagCloud"
 import Brand from "./Brand"
 import Teaser from "./Teaser"
+import FaceHero from "./FaceHero"
+import FaceSections, { CategoryIndex } from "./FaceSections"
 import Empty from "./Empty"
 
 export {
@@ -70,4 +72,7 @@ export {
   Brand,
   Teaser,
   Empty,
+  FaceHero,
+  FaceSections,
+  CategoryIndex,
 }

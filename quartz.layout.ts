@@ -10,6 +10,7 @@ const graphOptions = {
   globalGraph: { showTags: false },
 }
 const isHome = (page: QuartzComponentProps) => page.fileData.slug === "index"
+const isSlug = (slug: string) => (page: QuartzComponentProps) => page.fileData.slug === slug
 
 // components shared across all pages
 export const sharedPageComponents: SharedLayout = {
@@ -27,18 +28,29 @@ const left = [
 ]
 
 // components for pages that display a single page (e.g. a single note)
-// the home page (content/index.md) renders its intro text followed by the timeline
+// the home page (content/index.md) is the Studio Face: hero, intro text, then the
+// sections set in the Studio (latest, featured, categories, links); the full
+// stream lives on /timeline/ and the category list on /categories/
 export const defaultContentPageLayout: PageLayout & Pick<FullPageLayout, "afterBody"> = {
   beforeBody: [
     Component.DraftBadge(),
     Component.TopNav(),
+    Component.ConditionalRender({ component: Component.FaceHero(), condition: isHome }),
     Component.PostHeader(),
     Component.SeriesNav({ position: "top" }),
   ],
   afterBody: [
     Component.SeriesNav({ position: "bottom" }),
-    Component.ConditionalRender({ component: Component.TagList(), condition: (p) => !isHome(p) }),
-    Component.ConditionalRender({ component: Component.Timeline(), condition: isHome }),
+    Component.ConditionalRender({
+      component: Component.TagList(),
+      condition: (p) => !isHome(p) && !isSlug("timeline")(p) && !isSlug("categories")(p),
+    }),
+    Component.ConditionalRender({ component: Component.FaceSections(), condition: isHome }),
+    Component.ConditionalRender({ component: Component.Timeline(), condition: isSlug("timeline") }),
+    Component.ConditionalRender({
+      component: Component.CategoryIndex(),
+      condition: isSlug("categories"),
+    }),
   ],
   left,
   right: [

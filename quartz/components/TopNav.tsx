@@ -1,20 +1,26 @@
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "./types"
 import { FullSlug, resolveRelative } from "../util/path"
 import { classNames } from "../util/lang"
-import { CONTENT_TYPES, ContentFolder, contentFolder } from "../util/stream"
+import { contentFolder } from "../util/stream"
 
+/** Home → Timeline → Categories; type views (/research/ …) stay reachable from entry pills. */
 const LINKS: [string, FullSlug][] = [
-  ["All", "index" as FullSlug],
-  ...(Object.keys(CONTENT_TYPES) as ContentFolder[]).map((folder): [string, FullSlug] => [
-    folder[0].toUpperCase() + folder.slice(1),
-    `${folder}/index` as FullSlug,
-  ]),
+  ["Home", "index" as FullSlug],
+  ["Timeline", "timeline" as FullSlug],
+  ["Categories", "categories" as FullSlug],
 ]
 
 export default (() => {
   const TopNav: QuartzComponent = ({ fileData, displayClass }: QuartzComponentProps) => {
     const slug = fileData.slug!
-    const current = slug === "index" ? "index" : `${contentFolder(slug)}/index`
+    const current =
+      slug === "index" || slug === "timeline" || slug === "categories"
+        ? slug
+        : slug.startsWith("categories/")
+          ? "categories"
+          : contentFolder(slug)
+            ? "timeline"
+            : ""
     return (
       <nav class={classNames(displayClass, "topnav")}>
         {LINKS.map(([label, target]) => (

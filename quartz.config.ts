@@ -2,6 +2,7 @@ import { QuartzConfig } from "./quartz/cfg"
 import * as Plugin from "./quartz/plugins"
 import { Timeline } from "./quartz/components"
 import { teaserPageLayout } from "./quartz.layout"
+import { loadFace, withAlpha } from "./quartz/util/face"
 
 /**
  * Launch mode: the build contains only the teaser home page and the 404 page.
@@ -13,6 +14,9 @@ const LAUNCH_MODE = (process.env.MRENTRO_LAUNCH_MODE ?? "true") === "true"
 const UMAMI_WEBSITE_ID = ""
 const isProduction = process.env.QUARTZ_ENV === "production"
 
+// Accent colours come from Studio Face (content/face.json), default neon orange + purple.
+const { accent, accent2 } = loadFace().look
+
 // dark only: both schemes use the same palette
 const palette = {
   light: "#111113",
@@ -20,10 +24,10 @@ const palette = {
   gray: "#7a776f",
   darkgray: "#d6d3cc",
   dark: "#f0eee9",
-  secondary: "#ff7a1a",
-  tertiary: "#a855f7",
-  highlight: "rgba(255, 122, 26, 0.08)",
-  textHighlight: "rgba(168, 85, 247, 0.35)",
+  secondary: accent,
+  tertiary: accent2,
+  highlight: withAlpha(accent, 0.08),
+  textHighlight: withAlpha(accent2, 0.35),
 }
 
 const config: QuartzConfig = {
@@ -38,7 +42,7 @@ const config: QuartzConfig = {
         : null,
     locale: "en-US",
     baseUrl: "mrentro.com",
-    ignorePatterns: ["private", "templates", ".obsidian"],
+    ignorePatterns: ["private", "templates", ".obsidian", "face.json"],
     defaultDateType: "published",
     theme: {
       // system fonts only: no third-party font requests

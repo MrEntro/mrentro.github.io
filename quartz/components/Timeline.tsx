@@ -30,6 +30,7 @@ function viewFor(fileData: QuartzPluginData, allFiles: QuartzPluginData[]): View
   const entries = allFiles.filter(isEntry).sort(byDateDesc)
 
   if (slug === "index") return { kind: "stream", files: entries }
+  if (slug === "timeline") return { kind: "stream", title: "Timeline", files: entries }
   if (slug === "tags/index") return { kind: "tagIndex" }
   if (slug.startsWith("tags/")) {
     const tag = slug.slice("tags/".length)
@@ -53,9 +54,11 @@ function viewFor(fileData: QuartzPluginData, allFiles: QuartzPluginData[]): View
   if (slug.endsWith("/index")) {
     const prefix = slug.slice(0, -"index".length)
     const files = entries.filter((f) => f.slug!.startsWith(prefix))
-    // top-level type folders are named by the nav; nested folders get a heading
-    const title = contentFolder(slug) && prefix.split("/").length === 2 ? undefined : prefix
-    return { kind: "stream", kicker: title && "Folder", title, files }
+    // top-level type folders get the type's plural name; nested folders their path
+    const folder = contentFolder(slug)
+    const top = folder && prefix.split("/").length === 2
+    const title = top ? `${CONTENT_TYPES[folder]}${folder === "research" ? "" : "s"}` : prefix
+    return { kind: "stream", kicker: top ? "Type" : "Folder", title, files }
   }
   return undefined
 }
