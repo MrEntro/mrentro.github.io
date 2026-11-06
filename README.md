@@ -53,13 +53,26 @@ deploy/smoke-test.sh                # routes, status codes, security headers
 
 Two-stage `Dockerfile`: Node builds the site, unprivileged nginx serves `public/` on port 8080. `deploy/csp.mjs` generates a strict CSP at build time (inline scripts and syntax-highlighting style attributes allowed by hash; no `unsafe-inline`/`unsafe-eval`). `compose.yaml` runs it read-only with all capabilities dropped; the Caddy service for TLS is commented out until the VPS exists. CI builds and smoke-tests the image on every push and PR.
 
+## Design system (M16)
+
+Tokens in `quartz/styles/mrentro/tokens.scss` (same names as MrEntro Studio's `web/src/tokens.css`), then `base`, `layout`, `components` and `pages` next to it; `custom.scss` only loads them. Fonts are self-hosted in `quartz/static/fonts/` (Inter, Newsreader, JetBrains Mono; OFL, versions in its README); no third-party requests, so the CSP keeps `font-src 'self'`.
+
+- Dark by default, light theme; the system setting decides until the visitor uses the toggle (stored in `localStorage`). The theme is set before first paint by `quartz/components/scripts/theme.inline.ts` (part of the external `prescript.js`, no inline JS); toggle and menu drawer in `scripts/site.inline.ts`.
+- Studio Face accents other than the defaults become token overrides with per-theme text shades that keep AA contrast (`faceAccentCss` in `quartz/util/face.ts`).
+- Layout: header, three columns with equal rails (explorer | content | graph + backlinks), footer. Below 1200 px the left rail is the menu drawer and the right rail follows the content; below 768 px the header is menu | brand | theme.
+- Header, nav and footer render only when `siteMode` is `"live"`; teaser, hidden and their 404 keep the Signal look.
+
 ## Changes to upstream Quartz
 
-Custom files: `quartz/components/{Timeline,TopNav,PostHeader,SeriesNav,SeriesList,TagCloud,Brand,Teaser,Empty,DraftBadge,FaceHero,FaceSections}.tsx`, `quartz/plugins/filters/{launchMode,frontmatterCheck}.ts`, `quartz/plugins/emitters/{taxonomyPage.tsx,emptyContentIndex.ts}`, `quartz/util/{stream,face}.ts`, `quartz/styles/custom.scss`.
+Custom files: `quartz/components/{Timeline,TopNav,PostHeader,SeriesNav,SeriesList,TagCloud,Brand,Teaser,Empty,DraftBadge,FaceHero,FaceSections,SiteHeader,SiteFooter,SiteExplorer,ThemeToggle}.tsx`, `quartz/components/scripts/{theme,site}.inline.ts`, `quartz/plugins/filters/{launchMode,frontmatterCheck}.ts`, `quartz/plugins/emitters/{taxonomyPage.tsx,emptyContentIndex.ts}`, `quartz/util/{stream,face}.ts`, `quartz/styles/custom.scss`, `quartz/styles/mrentro/*.scss`.
 
 Edited upstream files:
 
-- `quartz/components/pages/404.tsx`: signal-style 404
+- `quartz/cfg.ts`: `siteMode` in the global configuration
+- `quartz/components/renderPage.tsx`: page shell (skip link, header outside the grid, `main` and `aside` landmarks, footer, drawer scrim)
+- `quartz/components/Head.tsx`: also theme scripts, font preloads, Face accent tokens
+
+- `quartz/components/pages/404.tsx`: 404 inside the site shell when live, signal-style otherwise
 - `quartz/components/scripts/graph.inline.ts`: nodes coloured by type; `pixi.js/unsafe-eval` import so the graph runs without `unsafe-eval`
 - `quartz/components/Head.tsx`: removed cdnjs preconnect
 - `quartz/plugins/transformers/description.ts`: falls back to frontmatter `summary`

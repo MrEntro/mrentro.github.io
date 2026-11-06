@@ -5,6 +5,18 @@ import { googleFontHref, googleFontSubsetHref } from "../util/theme"
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "./types"
 import { unescapeHTML } from "../util/escape"
 import { CustomOgImagesEmitterName } from "../plugins/emitters/ogImage"
+import { faceAccentCss, loadFace } from "../util/face"
+// @ts-ignore
+import themeScript from "./scripts/theme.inline"
+// @ts-ignore
+import siteScript from "./scripts/site.inline"
+
+const FONTS = {
+  ui: "static/fonts/inter-latin-wght-normal.woff2",
+  serif: "static/fonts/newsreader-latin-wght-normal.woff2",
+  mono: "static/fonts/jetbrains-mono-latin-wght-normal.woff2",
+}
+
 export default (() => {
   const Head: QuartzComponent = ({
     cfg,
@@ -36,6 +48,16 @@ export default (() => {
     )
     const ogImageDefaultPath = `https://${cfg.baseUrl}/static/og-image.png`
 
+    // preload the faces above the fold: signal pages are mono only, the home page adds the hero
+    const live = (cfg.siteMode ?? "live") === "live"
+    const preload = !live
+      ? [FONTS.mono]
+      : fileData.slug === "index"
+        ? [FONTS.ui, FONTS.mono, FONTS.serif]
+        : fileData.slug === "404"
+          ? [FONTS.ui, FONTS.mono]
+          : [FONTS.ui, FONTS.serif]
+
     return (
       <head>
         <title>{title}</title>
@@ -51,6 +73,16 @@ export default (() => {
           </>
         )}
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="color-scheme" content="dark light" />
+        {preload.map((font) => (
+          <link
+            rel="preload"
+            href={joinSegments(baseDir, font)}
+            as="font"
+            type="font/woff2"
+            crossOrigin="anonymous"
+          />
+        ))}
 
         <meta name="og:site_name" content={cfg.pageTitle}></meta>
         <meta property="og:title" content={title} />
@@ -99,6 +131,12 @@ export default (() => {
       </head>
     )
   }
+
+  // theme before first paint (external prescript.js), toggle + drawer after load,
+  // and token overrides when Studio Face sets custom accents
+  Head.beforeDOMLoaded = themeScript
+  Head.afterDOMLoaded = siteScript
+  Head.css = faceAccentCss(loadFace())
 
   return Head
 }) satisfies QuartzComponentConstructor

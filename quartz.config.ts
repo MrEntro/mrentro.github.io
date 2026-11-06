@@ -2,7 +2,6 @@ import { QuartzConfig } from "./quartz/cfg"
 import * as Plugin from "./quartz/plugins"
 import { Timeline } from "./quartz/components"
 import { hiddenPageLayout, teaserPageLayout } from "./quartz.layout"
-import { loadFace, withAlpha } from "./quartz/util/face"
 
 /**
  * Site visibility, switched by MrEntro Studio (Publish → Site visibility):
@@ -26,26 +25,39 @@ const LAUNCH_MODE = SITE_MODE !== "live"
 const UMAMI_WEBSITE_ID = ""
 const isProduction = process.env.QUARTZ_ENV === "production"
 
-// Accent colours come from Studio Face (content/face.json), default neon orange + purple.
-const { accent, accent2 } = loadFace().look
-
-// dark only: both schemes use the same palette
+// Colours are design tokens (quartz/styles/mrentro/tokens.scss, accents from Studio Face).
+// Quartz's own palette variables are mapped onto the tokens in quartz/styles/mrentro/base.scss;
+// these values only seed them and match the tokens.
 const palette = {
-  light: "#111113",
-  lightgray: "#26262b",
-  gray: "#7a776f",
-  darkgray: "#d6d3cc",
-  dark: "#f0eee9",
-  secondary: accent,
-  tertiary: accent2,
-  highlight: withAlpha(accent, 0.08),
-  textHighlight: withAlpha(accent2, 0.35),
+  dark: {
+    light: "#0e0e11",
+    lightgray: "#2a2a31",
+    gray: "#8a877f",
+    darkgray: "#ecebe6",
+    dark: "#ecebe6",
+    secondary: "#ff8a3d",
+    tertiary: "#c08bff",
+    highlight: "rgba(255, 122, 26, 0.12)",
+    textHighlight: "rgba(168, 85, 247, 0.14)",
+  },
+  light: {
+    light: "#faf9f6",
+    lightgray: "#e3e0d8",
+    gray: "#6b6862",
+    darkgray: "#16151a",
+    dark: "#16151a",
+    secondary: "#b93f00",
+    tertiary: "#7e22ce",
+    highlight: "rgba(255, 122, 26, 0.12)",
+    textHighlight: "rgba(147, 51, 234, 0.1)",
+  },
 }
 
 const config: QuartzConfig = {
   configuration: {
     pageTitle: "MrEntro",
     pageTitleSuffix: "",
+    siteMode: SITE_MODE,
     enableSPA: !LAUNCH_MODE,
     enablePopovers: !LAUNCH_MODE,
     analytics:
@@ -57,17 +69,17 @@ const config: QuartzConfig = {
     ignorePatterns: ["private", "templates", ".obsidian", "face.json"],
     defaultDateType: "published",
     theme: {
-      // system fonts only: no third-party font requests
+      // self-hosted webfonts (quartz/static/fonts, @font-face in tokens.scss): no third-party requests
       fontOrigin: "local",
       cdnCaching: false,
       typography: {
-        header: "Charter",
-        body: "Charter",
+        header: "Newsreader",
+        body: "Newsreader",
         code: "JetBrains Mono",
       },
       colors: {
-        lightMode: palette,
-        darkMode: palette,
+        lightMode: palette.light,
+        darkMode: palette.dark,
       },
     },
   },
@@ -79,7 +91,7 @@ const config: QuartzConfig = {
       }),
       Plugin.SyntaxHighlighting({
         theme: {
-          light: "github-dark",
+          light: "github-light",
           dark: "github-dark",
         },
         keepBackground: false,

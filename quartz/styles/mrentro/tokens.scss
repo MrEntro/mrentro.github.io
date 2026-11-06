@@ -1,0 +1,183 @@
+// MrEntro design tokens (M16). One vocabulary for the site (this file) and MrEntro Studio
+// (web/src/tokens.css): same names, checked by a Studio test. Reference: studio docs/DESIGN.md.
+// Theme: `saved-theme` on <html> (set by the theme script before first paint); without it the
+// system setting decides. Contrast: text AA in both themes, article body AAA.
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("static/fonts/inter-latin-wght-normal.woff2") format("woff2-variations");
+}
+@font-face {
+  font-family: "Newsreader";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("static/fonts/newsreader-latin-wght-normal.woff2") format("woff2-variations");
+}
+@font-face {
+  font-family: "Newsreader";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("static/fonts/newsreader-latin-wght-italic.woff2") format("woff2-variations");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url("static/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");
+}
+// metric-matched fallbacks: no layout shift while the webfonts load
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial");
+  size-adjust: 107%;
+  ascent-override: 90%;
+  descent-override: 22%;
+}
+@font-face {
+  font-family: "Newsreader Fallback";
+  src: local("Georgia");
+  size-adjust: 94%;
+  ascent-override: 98%;
+  descent-override: 26%;
+}
+
+:root {
+  // type
+  --font-ui: "Inter", "Inter Fallback", system-ui, sans-serif;
+  --font-serif: "Newsreader", "Newsreader Fallback", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-md: 18px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 29px;
+  --text-3xl: clamp(29px, 2.2vw + 20px, 35px);
+  --text-4xl: clamp(32px, 3vw + 20px, 40px);
+  --text-display: clamp(48px, 7vw + 16px, 104px);
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-ui: 1.5;
+  --leading-body: 1.6; // article body 20/32
+  --measure: 68ch;
+
+  // space (4 px base)
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  // radii
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  // motion (all off under prefers-reduced-motion, see base.scss)
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  // layout
+  --rail: 288px;
+  --header-h: 64px;
+  --touch: 44px;
+}
+
+@mixin dark {
+  color-scheme: dark;
+  --bg: #0e0e11;
+  --surface: #15151a;
+  --raised: #1c1c22;
+  --border: #2a2a31;
+  --border-strong: #45454f;
+  --fg: #ecebe6;
+  --muted: #aeaba3;
+  --faint: #8a877f;
+  --accent: #ff7a1a; // orange fill
+  --on-accent: #140a02; // text on orange fill
+  --accent-text: #ff8a3d; // orange used as text
+  --accent-soft: rgba(255, 122, 26, 0.12);
+  --accent-2: #a855f7; // purple fill / graphics
+  --accent-2-text: #c08bff; // purple used as text
+  --accent-2-soft: rgba(168, 85, 247, 0.14);
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --error: #f87171;
+  --ok-soft: rgba(74, 222, 128, 0.12);
+  --warn-soft: rgba(251, 191, 36, 0.12);
+  --error-soft: rgba(248, 113, 113, 0.12);
+  --c-research: var(--accent-text);
+  --c-note: var(--accent-2-text);
+  --c-tool: #ffb27a;
+  --c-talk: #dcb8ff;
+  --code-bg: #0a0a0d;
+  --grid-line: rgba(255, 255, 255, 0.045);
+  --focus: #c08bff;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.25);
+  --shadow-2: 0 12px 32px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --selection: rgba(255, 122, 26, 0.35);
+}
+
+@mixin light {
+  color-scheme: light;
+  --bg: #faf9f6;
+  --surface: #ffffff;
+  --raised: #f2f0eb;
+  --border: #e3e0d8;
+  --border-strong: #b8b4aa;
+  --fg: #16151a;
+  --muted: #4f4d48;
+  --faint: #6b6862;
+  --accent: #ff7a1a;
+  --on-accent: #140a02;
+  --accent-text: #b93f00;
+  --accent-soft: rgba(255, 122, 26, 0.12);
+  --accent-2: #9333ea;
+  --accent-2-text: #7e22ce;
+  --accent-2-soft: rgba(147, 51, 234, 0.1);
+  --ok: #166534;
+  --warn: #92400e;
+  --error: #b91c1c;
+  --ok-soft: rgba(22, 101, 52, 0.1);
+  --warn-soft: rgba(146, 64, 14, 0.1);
+  --error-soft: rgba(185, 28, 28, 0.08);
+  --c-research: var(--accent-text);
+  --c-note: var(--accent-2-text);
+  --c-tool: #9a3412;
+  --c-talk: #6b21a8;
+  --code-bg: #f4f2ed;
+  --grid-line: rgba(0, 0, 0, 0.05);
+  --focus: #7e22ce;
+  --shadow-1: 0 1px 2px rgba(20, 16, 8, 0.06), 0 1px 1px rgba(20, 16, 8, 0.04);
+  --shadow-2: 0 12px 32px rgba(20, 16, 8, 0.12), 0 2px 6px rgba(20, 16, 8, 0.06);
+  --selection: rgba(255, 122, 26, 0.25);
+}
+
+// dark is the default
+:root,
+:root[saved-theme="dark"] {
+  @include dark;
+}
+:root[saved-theme="light"] {
+  @include light;
+}
+// no theme script (JS off): follow the system setting
+@media (prefers-color-scheme: light) {
+  :root:not([saved-theme]) {
+    @include light;
+  }
+}

@@ -13,19 +13,16 @@ const isHome = (page: QuartzComponentProps) => page.fileData.slug === "index"
 const isSlug = (slug: string) => (page: QuartzComponentProps) => page.fileData.slug === slug
 
 // components shared across all pages
+// header and footer render only on the live site (cfg.siteMode)
 export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
-  header: [],
+  header: [Component.SiteHeader({ name: NAME })],
   afterBody: [],
-  footer: Component.Empty(),
+  footer: Component.SiteFooter({ name: NAME.join(""), tagline: TAGLINE }),
 }
 
-const left = [
-  Component.Brand({ name: NAME }),
-  Component.MobileOnly(Component.Spacer()),
-  Component.Explorer({ title: "Explorer" }),
-  Component.DesktopOnly(Component.TagCloud()),
-]
+// left rail; below 1200 px it is the menu drawer (DrawerHead shows only there)
+const left = [Component.DrawerHead({ name: NAME }), Component.SiteExplorer(), Component.TagCloud()]
 
 // components for pages that display a single page (e.g. a single note)
 // the home page (content/index.md) is the Studio Face: hero, intro text, then the
@@ -34,17 +31,16 @@ const left = [
 export const defaultContentPageLayout: PageLayout & Pick<FullPageLayout, "afterBody"> = {
   beforeBody: [
     Component.DraftBadge(),
-    Component.TopNav(),
     Component.ConditionalRender({ component: Component.FaceHero(), condition: isHome }),
     Component.PostHeader(),
     Component.SeriesNav({ position: "top" }),
   ],
   afterBody: [
-    Component.SeriesNav({ position: "bottom" }),
     Component.ConditionalRender({
       component: Component.TagList(),
       condition: (p) => !isHome(p) && !isSlug("timeline")(p) && !isSlug("categories")(p),
     }),
+    Component.SeriesNav({ position: "bottom" }),
     Component.ConditionalRender({ component: Component.FaceSections(), condition: isHome }),
     Component.ConditionalRender({ component: Component.Timeline(), condition: isSlug("timeline") }),
     Component.ConditionalRender({
@@ -69,7 +65,7 @@ export const defaultContentPageLayout: PageLayout & Pick<FullPageLayout, "afterB
 
 // components for pages that display lists of pages (type folders, tags, series, categories)
 export const defaultListPageLayout: PageLayout & Pick<FullPageLayout, "afterBody"> = {
-  beforeBody: [Component.TopNav()],
+  beforeBody: [],
   afterBody: [],
   left,
   right: [Component.Graph({ ...graphOptions, localGraph: { showTags: false, depth: -1 } })],

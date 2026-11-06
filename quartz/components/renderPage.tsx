@@ -1,6 +1,5 @@
 import { render } from "preact-render-to-string"
 import { QuartzComponent, QuartzComponentProps } from "./types"
-import HeaderConstructor from "./Header"
 import BodyConstructor from "./Body"
 import { JSResourceToScriptElement, StaticResources } from "../util/resources"
 import { FullSlug, RelativeURL, joinSegments, normalizeHastElement } from "../util/path"
@@ -211,23 +210,25 @@ export function renderPage(
     right,
     footer: Footer,
   } = components
-  const Header = HeaderConstructor()
   const Body = BodyConstructor()
 
+  // MrEntro shell (M16): skip link, full-width header, three equal columns
+  // (explorer | content | graph + backlinks), full-width footer. Below 1200 px the left rail
+  // is the menu drawer and the right rail flows after the content.
   const LeftComponent = (
-    <div class="left sidebar">
+    <aside class="left sidebar rail" id="site-drawer" aria-label="Site">
       {left.map((BodyComponent) => (
         <BodyComponent {...componentData} />
       ))}
-    </div>
+    </aside>
   )
 
   const RightComponent = (
-    <div class="right sidebar">
+    <aside class="right sidebar rail" aria-label="Connections">
       {right.map((BodyComponent) => (
         <BodyComponent {...componentData} />
       ))}
-    </div>
+    </aside>
   )
 
   const lang = componentData.fileData.frontmatter?.lang ?? cfg.locale?.split("-")[0] ?? "en"
@@ -236,16 +237,17 @@ export function renderPage(
     <html lang={lang} dir={direction}>
       <Head {...componentData} />
       <body data-slug={slug}>
-        <div id="quartz-root" class="page">
+        <a class="skip" href="#content">
+          Skip to content
+        </a>
+        <div id="quartz-root" class="page site">
+          {header.map((HeaderComponent) => (
+            <HeaderComponent {...componentData} />
+          ))}
           <Body {...componentData}>
-            {LeftComponent}
-            <div class="center">
+            {left.length > 0 ? LeftComponent : <></>}
+            <main class="center" id="content" tabindex={-1}>
               <div class="page-header">
-                <Header {...componentData}>
-                  {header.map((HeaderComponent) => (
-                    <HeaderComponent {...componentData} />
-                  ))}
-                </Header>
                 <div class="popover-hint">
                   {beforeBody.map((BodyComponent) => (
                     <BodyComponent {...componentData} />
@@ -253,17 +255,17 @@ export function renderPage(
                 </div>
               </div>
               <Content {...componentData} />
-              <hr />
               <div class="page-footer">
                 {afterBody.map((BodyComponent) => (
                   <BodyComponent {...componentData} />
                 ))}
               </div>
-            </div>
-            {RightComponent}
-            <Footer {...componentData} />
+            </main>
+            {right.length > 0 ? RightComponent : <></>}
           </Body>
+          <Footer {...componentData} />
         </div>
+        {left.length > 0 && <div class="scrim" data-drawer-close></div>}
       </body>
       {pageResources.js
         .filter((resource) => resource.loadTime === "afterDOMReady")

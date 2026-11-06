@@ -1,0 +1,151 @@
+// Base elements on top of Quartz's base.scss, and the bridge from Quartz's palette variables to
+// the design tokens (upstream components such as the graph and popovers read --light, --gray …).
+// :root:root:root beats Quartz's generated `:root[saved-theme]` palette blocks.
+
+:root:root:root {
+  --light: var(--bg);
+  --lightgray: var(--border);
+  --gray: var(--faint);
+  --darkgray: var(--fg);
+  --dark: var(--fg);
+  --secondary: var(--accent-text);
+  --tertiary: var(--accent-2-text);
+  --highlight: var(--accent-soft);
+  --textHighlight: var(--accent-2-soft);
+  --titleFont: var(--font-serif);
+  --headerFont: var(--font-serif);
+  --bodyFont: var(--font-serif);
+  --codeFont: var(--font-mono);
+  // graph node colours by type (graph.inline.ts)
+  --type-research: var(--c-research);
+  --type-notes: var(--c-note);
+  --type-tools: var(--c-tool);
+  --type-talks: var(--c-talk);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  width: auto;
+  scroll-padding-top: calc(var(--header-h) + var(--space-4));
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 var(--text-base) / var(--leading-ui) var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background-color var(--dur-base) var(--ease),
+    color var(--dur-base) var(--ease);
+}
+
+::selection {
+  background: var(--selection);
+  color: inherit;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+p,
+ul,
+ol,
+li,
+a,
+tr,
+td,
+text {
+  color: inherit;
+  fill: currentColor;
+}
+
+a {
+  color: inherit;
+  font-weight: inherit;
+  &:hover {
+    color: inherit;
+  }
+  &.internal {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    line-height: inherit;
+  }
+}
+
+// Quartz's Header component styles every <header> as a flex row; ours are blocks
+header {
+  display: block;
+  margin: 0;
+  gap: 0;
+  h1 {
+    flex: none;
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--fg);
+  font-family: var(--font-serif);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.skip {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 100;
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font: 600 var(--text-sm) / 1 var(--font-ui);
+  text-decoration: none;
+  &:focus {
+    top: 8px;
+    color: var(--on-accent);
+  }
+}
+
+main:focus {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

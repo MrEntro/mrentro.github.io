@@ -4,7 +4,7 @@ import { classNames } from "../util/lang"
 import { frontmatterString, isEntry, seriesEntries, taxonomySlug } from "../util/stream"
 
 interface Options {
-  /** "top": "Part N of <series>" note above the post; "bottom": prev/next cards after it */
+  /** "top": "Part N of <series>" box above the post; "bottom": prev/next cards after it */
   position: "top" | "bottom"
 }
 
@@ -25,44 +25,51 @@ export default ((opts: Options) => {
 
     if (opts.position === "top") {
       return (
-        <div class={classNames(displayClass, "series-note")}>
-          Part {i + 1} of{" "}
-          <a class="series-name" href={resolveRelative(slug, taxonomySlug("series", series))}>
-            {series}
-          </a>
-          .
-          {next && (
-            <>
-              {" Next: "}
-              <a class="internal" href={resolveRelative(slug, next.slug!)}>
-                {next.frontmatter?.title}
-              </a>
-            </>
-          )}
+        <div class={classNames(displayClass, "series-box")}>
+          <span class="steps" aria-hidden="true">
+            {parts.map((_, n) => (
+              <i class={n <= i ? "on" : undefined}></i>
+            ))}
+          </span>
+          <span>
+            Part {i + 1} of {parts.length} in{" "}
+            <a class="series-name" href={resolveRelative(slug, taxonomySlug("series", series))}>
+              {series}
+            </a>
+            .
+            {next && (
+              <>
+                {" Next: "}
+                <a class="internal" href={resolveRelative(slug, next.slug!)}>
+                  {next.frontmatter?.title}
+                </a>
+              </>
+            )}
+          </span>
         </div>
       )
     }
 
     return (
-      <nav class={classNames(displayClass, "pn")}>
+      <nav class={classNames(displayClass, "pn")} aria-label="Series">
         {prev ? (
           <a class="internal" href={resolveRelative(slug, prev.slug!)}>
-            <small>← Previous</small>
+            <small>Previous</small>
             <b>{prev.frontmatter?.title}</b>
           </a>
         ) : (
-          <span>
-            <small>← Previous</small>Start of series
+          <span class="off">
+            <small>Previous</small>Start of series
           </span>
         )}
         {next ? (
           <a class="internal nx" href={resolveRelative(slug, next.slug!)}>
-            <small>Next →</small>
+            <small>Next in series</small>
             <b>{next.frontmatter?.title}</b>
           </a>
         ) : (
-          <span class="nx">
-            <small>Next →</small>Coming soon
+          <span class="nx off">
+            <small>Next in series</small>Coming soon
           </span>
         )}
       </nav>

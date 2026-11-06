@@ -4,6 +4,7 @@ import { QuartzPluginData } from "../plugins/vfile"
 import { FullSlug, resolveRelative } from "../util/path"
 import { formatDate } from "./Date"
 import { classNames } from "../util/lang"
+import { loadFace } from "../util/face"
 import {
   CONTENT_TYPES,
   byDateDesc,
@@ -16,7 +17,14 @@ import {
 } from "../util/stream"
 
 type View =
-  | { kind: "stream"; kicker?: string; title?: string; files: QuartzPluginData[] }
+  | {
+      kind: "stream"
+      kicker?: string
+      title?: string
+      lede?: string
+      filters?: boolean
+      files: QuartzPluginData[]
+    }
   | { kind: "series"; title: string; files: QuartzPluginData[] }
   | { kind: "tagIndex" }
 
@@ -30,7 +38,14 @@ function viewFor(fileData: QuartzPluginData, allFiles: QuartzPluginData[]): View
   const entries = allFiles.filter(isEntry).sort(byDateDesc)
 
   if (slug === "index") return { kind: "stream", files: entries }
-  if (slug === "timeline") return { kind: "stream", title: "Timeline", files: entries }
+  if (slug === "timeline")
+    return {
+      kind: "stream",
+      title: "Timeline",
+      lede: fileData.description,
+      filters: true,
+      files: entries,
+    }
   if (slug === "tags/index") return { kind: "tagIndex" }
   if (slug.startsWith("tags/")) {
     const tag = slug.slice("tags/".length)
@@ -48,7 +63,10 @@ function viewFor(fileData: QuartzPluginData, allFiles: QuartzPluginData[]): View
   }
   if (taxonomy?.kind === "categories") {
     const files = entries.filter((f) => frontmatterString(f, "category") === taxonomy.name)
-    return { kind: "stream", kicker: "Category", title: taxonomy.name, files }
+    const lede = loadFace().categoryList.find(
+      (c) => c.name.toLowerCase() === taxonomy.name.toLowerCase(),
+    )?.description
+    return { kind: "stream", kicker: "Category", title: taxonomy.name, lede, files }
   }
 
   if (slug.endsWith("/index")) {
@@ -58,7 +76,7 @@ function viewFor(fileData: QuartzPluginData, allFiles: QuartzPluginData[]): View
     const folder = contentFolder(slug)
     const top = folder && prefix.split("/").length === 2
     const title = top ? `${CONTENT_TYPES[folder]}${folder === "research" ? "" : "s"}` : prefix
-    return { kind: "stream", kicker: top ? "Type" : "Folder", title, files }
+    return { kind: "stream", kicker: top ? "Type" : "Folder", title, filters: !!top, files }
   }
   return undefined
 }
@@ -68,16 +86,22 @@ function Entry({
   file,
   cfg,
   allFiles,
-}: { from: FullSlug; file: QuartzPluginData } & Pick<QuartzComponentProps, "cfg" | "allFiles">) {
+  showCategory,
+}: { from: FullSlug; file: QuartzPluginData; showCategory: boolean } & Pick<
+  QuartzComponentProps,
+  "cfg" | "allFiles"
+>) {
   const folder = contentFolder(file.slug)!
   const date = entryDate(file)
   const minutes = Math.ceil(readingTime(file.text ?? "").minutes)
   const series = frontmatterString(file, "series")
+  const category = frontmatterString(file, "category")
   const summary = summaryOf(file)
   return (
     <a class="entry internal" href={resolveRelative(from, file.slug!)}>
       <div class="e-meta">
         <span class={classNames(undefined, "pill", folder)}>{CONTENT_TYPES[folder]}</span>
+        {showCategory && category && <span class="cat">{category}</span>}
         <span>
           {date && <time datetime={date.toISOString()}>{formatDate(date, cfg.locale)}</time>}
           {minutes > 0 && ` · ${minutes} min`}
@@ -92,6 +116,43 @@ function Entry({
         </span>
       )}
     </a>
+  )
+}
+
+/** Type filters on the timeline: links to the type views, so they work without JS. */
+function Filters({ from, allFiles }: { from: FullSlug; allFiles: QuartzPluginData[] }) {
+  const entries = allFiles.filter(isEntry)
+  const folders = (Object.keys(CONTENT_TYPES) as (keyof typeof CONTENT_TYPES)[]).filter((f) =>
+    entries.some((e) => contentFolder(e.slug) === f),
+  )
+  if (folders.length < 2) return null
+  const here = from === "timeline" ? "all" : contentFolder(from)
+  const plural = (f: keyof typeof CONTENT_TYPES) =>
+    `${CONTENT_TYPES[f]}${f === "research" ? "" : "s"}`
+  const items: [string, string, FullSlug, number][] = [
+    ["all", "All", "timeline" as FullSlug, entries.length],
+    ...folders.map(
+      (f) =>
+        [
+          f,
+          plural(f),
+          `${f}/index` as FullSlug,
+          entries.filter((e) => contentFolder(e.slug) === f).length,
+        ] as [string, string, FullSlug, number],
+    ),
+  ]
+  return (
+    <nav class="filters" aria-label="Filter by type">
+      {items.map(([key, label, target, n]) => (
+        <a
+          class="internal"
+          href={resolveRelative(from, target)}
+          aria-current={key === here ? "page" : undefined}
+        >
+          {label} <span class="n">{n}</span>
+        </a>
+      ))}
+    </nav>
   )
 }
 
@@ -112,10 +173,10 @@ export default (() => {
         for (const t of f.frontmatter?.tags ?? []) counts.set(t, (counts.get(t) ?? 0) + 1)
       }
       return (
-        <div class={classNames(displayClass, "timeline")}>
-          <div class="list-head">
-            <h1>Tags</h1>
-          </div>
+        <div class={classNames(displayClass, "timeline", "col", "wide")}>
+          <header class="page-head">
+            <h1 class="page-title">Tags</h1>
+          </header>
           <ul class="chips">
             {[...counts.entries()]
               .sort(([a], [b]) => a.localeCompare(b))
@@ -134,17 +195,22 @@ export default (() => {
       )
     }
 
+    const stream = view.kind === "stream" ? view : undefined
     const head = view.title && (
-      <div class="list-head">
-        {"kicker" in view && view.kicker && <div class="kicker">{view.kicker}</div>}
-        {view.kind === "series" && <div class="kicker">Series</div>}
-        <h1>{view.title}</h1>
-      </div>
+      <header class="page-head">
+        {stream?.kicker && <div class="kicker">{stream.kicker}</div>}
+        {view.kind === "series" && <div class="kicker">Series · {view.files.length} parts</div>}
+        <h1 class="page-title">{view.title}</h1>
+        {stream?.lede && <p class="page-lede">{stream.lede}</p>}
+        {stream?.filters && <Filters from={from} allFiles={allFiles} />}
+      </header>
     )
+    // category pages already say the category
+    const showCategory = fileData.taxonomy?.kind !== "categories"
 
     if (view.files.length === 0) {
       return (
-        <div class={classNames(displayClass, "timeline")}>
+        <div class={classNames(displayClass, "timeline", "col", "wide")}>
           {head}
           <p class="empty">Nothing here yet.</p>
         </div>
@@ -153,12 +219,18 @@ export default (() => {
 
     if (view.kind === "series") {
       return (
-        <div class={classNames(displayClass, "timeline")}>
+        <div class={classNames(displayClass, "timeline", "col", "wide")}>
           {head}
           <ol class="entries series-list">
             {view.files.map((file) => (
               <li>
-                <Entry from={from} file={file} cfg={cfg} allFiles={allFiles} />
+                <Entry
+                  from={from}
+                  file={file}
+                  cfg={cfg}
+                  allFiles={allFiles}
+                  showCategory={showCategory}
+                />
               </li>
             ))}
           </ol>
@@ -173,16 +245,29 @@ export default (() => {
     }
 
     return (
-      <div class={classNames(displayClass, "timeline")}>
+      <div class={classNames(displayClass, "timeline", "col", "wide")}>
         {head}
         {[...years.entries()].map(([year, files]) => (
-          <section class="tl-year">
-            <h2 class="yr">{year}</h2>
-            <div class="entries">
+          <section class="year" aria-labelledby={`y-${year}`}>
+            <h2 id={`y-${year}`}>
+              {year}{" "}
+              <small>
+                {files.length} {files.length === 1 ? "entry" : "entries"}
+              </small>
+            </h2>
+            <ul class="entries">
               {files.map((file) => (
-                <Entry from={from} file={file} cfg={cfg} allFiles={allFiles} />
+                <li>
+                  <Entry
+                    from={from}
+                    file={file}
+                    cfg={cfg}
+                    allFiles={allFiles}
+                    showCategory={showCategory}
+                  />
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
         ))}
       </div>

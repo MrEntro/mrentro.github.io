@@ -32,6 +32,9 @@ import SeriesList from "./SeriesList"
 import TagCloud from "./TagCloud"
 import Brand from "./Brand"
 import Teaser from "./Teaser"
+import SiteHeader from "./SiteHeader"
+import SiteFooter from "./SiteFooter"
+import SiteExplorer, { DrawerHead } from "./SiteExplorer"
 import FaceHero from "./FaceHero"
 import FaceSections, { CategoryIndex } from "./FaceSections"
 import Empty from "./Empty"
@@ -71,6 +74,10 @@ export {
   TagCloud,
   Brand,
   Teaser,
+  SiteHeader,
+  SiteFooter,
+  SiteExplorer,
+  DrawerHead,
   Empty,
   FaceHero,
   FaceSections,

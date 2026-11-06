@@ -1,4 +1,5 @@
 import { QuartzComponent, QuartzComponentConstructor } from "./types"
+import { ThemeToggleButton } from "./ThemeToggle"
 
 interface Options {
   /** handle split in two; the second half gets the accent colour */
@@ -12,37 +13,40 @@ interface Options {
 /** Launch-mode home page: handle, tagline, nothing else (or a "?" when the site is hidden). */
 export default ((opts: Options) => {
   const Hidden: QuartzComponent = () => (
-    <main class="signal">
+    <div class="signal">
+      <ThemeToggleButton extraClass="corner" />
       <div class="box">
-        <div class="t-prompt">
+        <p class="t-prompt">
           <span>~</span> $ ls
-        </div>
+        </p>
         <h1 class="t-name t-unknown" aria-label="Nothing here">
-          ?<span class="cursor" aria-hidden="true"></span>
+          <span class="q">?</span>
+          <span class="cursor" aria-hidden="true"></span>
         </h1>
         <p class="t-line">{opts.tagline}</p>
       </div>
-    </main>
+    </div>
   )
   if (opts.hidden) return Hidden
 
   const Teaser: QuartzComponent = () => (
-    <main class="signal">
+    <div class="signal">
+      <ThemeToggleButton extraClass="corner" />
       <div class="box">
-        <div class="t-prompt">
+        <p class="t-prompt">
           <span>~</span> $ whoami
-        </div>
+        </p>
         <h1 class="t-name">
           {opts.name[0]}
           <b>{opts.name[1]}</b>
           <span class="cursor" aria-hidden="true"></span>
         </h1>
         <p class="t-line">{opts.tagline}</p>
-        <div class="t-meta">
+        <p class="t-meta">
           status: <i>{opts.status}</i>
-        </div>
+        </p>
       </div>
-    </main>
+    </div>
   )
 
   return Teaser

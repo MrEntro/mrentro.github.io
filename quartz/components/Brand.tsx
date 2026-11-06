@@ -7,15 +7,31 @@ interface Options {
   name: [string, string]
 }
 
+export function BrandLink({
+  slug,
+  name,
+  extraClass,
+}: {
+  slug: string
+  name: [string, string]
+  extraClass?: string
+}) {
+  return (
+    <a
+      class={classNames(undefined, "brand", extraClass ?? "")}
+      href={slug === "404" ? "/" : pathToRoot(slug as never)}
+    >
+      {name[0]}
+      <b>{name[1]}</b>
+    </a>
+  )
+}
+
 export default ((opts: Options) => {
   const Brand: QuartzComponent = ({ fileData, displayClass }: QuartzComponentProps) => (
-    <h2 class={classNames(displayClass, "page-title", "brand")}>
-      <a href={pathToRoot(fileData.slug!)}>
-        {opts.name[0]}
-        <span>{opts.name[1]}</span>
-      </a>
-    </h2>
+    <div class={classNames(displayClass, "brand-wrap")}>
+      <BrandLink slug={fileData.slug!} name={opts.name} />
+    </div>
   )
-
   return Brand
 }) satisfies QuartzComponentConstructor<Options>

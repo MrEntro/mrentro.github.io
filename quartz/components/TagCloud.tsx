@@ -3,7 +3,7 @@ import { FullSlug, resolveRelative } from "../util/path"
 import { classNames } from "../util/lang"
 import { isEntry } from "../util/stream"
 
-/** Every tag used by a published entry, most used first. */
+/** Every tag used by a published entry, most used first, with counts. */
 export default (() => {
   const TagCloud: QuartzComponent = ({
     fileData,
@@ -18,16 +18,23 @@ export default (() => {
 
     const tags = [...counts.entries()].sort(([a, x], [b, y]) => y - x || a.localeCompare(b))
     return (
-      <div class={classNames(displayClass, "tag-cloud")}>
-        <h3>Tags</h3>
+      <section class={classNames(displayClass, "tag-cloud")} aria-labelledby="tags-h">
+        <h2 class="rail-h" id="tags-h">
+          Tags
+        </h2>
         <ul class="chips">
-          {tags.map(([tag]) => (
+          {tags.map(([tag, n]) => (
             <li>
-              <a href={resolveRelative(fileData.slug!, `tags/${tag}` as FullSlug)}>{tag}</a>
+              <a href={resolveRelative(fileData.slug!, `tags/${tag}` as FullSlug)}>
+                {tag}
+                <span class="n" aria-label={`${n} ${n === 1 ? "entry" : "entries"}`}>
+                  {n}
+                </span>
+              </a>
             </li>
           ))}
         </ul>
-      </div>
+      </section>
     )
   }
 
