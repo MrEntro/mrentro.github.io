@@ -32,9 +32,15 @@ The build fails on entries that break these rules. `summary` is also the page's 
 
 `content/face.json` (written by MrEntro Studio, "Studio Face") drives the home page and the accent colours: hero, intro (`content/index.md`), sections (latest teasers, featured, categories, links), layout. It holds public data only: featured entries as slugs, and only categories that have a published entry. Missing file = defaults. The full stream is at `/timeline/` (`content/timeline.md`), the category list at `/categories/` (`content/categories.md`).
 
-## Launch mode
+## Site visibility (launch mode)
 
-`LAUNCH_MODE` in `quartz.config.ts`. When `true`, the build only emits the teaser home page and the 404 page. It reads `MRENTRO_LAUNCH_MODE`: unset or `"true"` = teaser only (production default), `"false"` = full site (used by MrEntro Studio previews).
+`SITE_MODE_DEFAULT` in `quartz.config.ts`, switched by MrEntro Studio (Publish → Site visibility) through a PR:
+
+- `"live"`: the full site.
+- `"teaser"`: only the teaser home page (handle + tagline) and the 404 page.
+- `"hidden"`: only a "?" home page ("Nothing to show here right now.") and the 404 page.
+
+`MRENTRO_SITE_MODE` overrides it; `MRENTRO_LAUNCH_MODE="false"` means `"live"` (MrEntro Studio previews).
 
 `studioPreview: draft` in frontmatter shows a DRAFT badge on the page (`DraftBadge`). Studio sets it on preview copies only; it is never published.
 

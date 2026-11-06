@@ -1,14 +1,26 @@
 import { QuartzConfig } from "./quartz/cfg"
 import * as Plugin from "./quartz/plugins"
 import { Timeline } from "./quartz/components"
-import { teaserPageLayout } from "./quartz.layout"
+import { hiddenPageLayout, teaserPageLayout } from "./quartz.layout"
 import { loadFace, withAlpha } from "./quartz/util/face"
 
 /**
- * Launch mode: the build contains only the teaser home page and the 404 page.
- * On unless MRENTRO_LAUNCH_MODE is "false" (Studio previews). Flip the default with the first publication.
+ * Site visibility, switched by MrEntro Studio (Publish → Site visibility):
+ * - "live": the full site;
+ * - "teaser": only the teaser home page (handle + tagline) and the 404 page;
+ * - "hidden": only a "?" home page saying there is nothing to show, and the 404 page.
+ * MRENTRO_SITE_MODE overrides it; MRENTRO_LAUNCH_MODE="false" means "live" (Studio previews).
  */
-const LAUNCH_MODE = (process.env.MRENTRO_LAUNCH_MODE ?? "true") === "true"
+type SiteMode = "live" | "teaser" | "hidden"
+const SITE_MODE_DEFAULT: SiteMode = "teaser"
+const SITE_MODE: SiteMode = (() => {
+  const env = process.env.MRENTRO_SITE_MODE
+  if (env === "live" || env === "teaser" || env === "hidden") return env
+  if (process.env.MRENTRO_LAUNCH_MODE === "false") return "live"
+  return SITE_MODE_DEFAULT
+})()
+/** Teaser and hidden builds contain only the home page and the 404 page. */
+const LAUNCH_MODE = SITE_MODE !== "live"
 
 /** Umami Cloud website ID (public). Analytics are injected in production builds only. */
 const UMAMI_WEBSITE_ID = ""
@@ -83,7 +95,7 @@ const config: QuartzConfig = {
     emitters: LAUNCH_MODE
       ? [
           Plugin.ComponentResources(),
-          Plugin.ContentPage(teaserPageLayout),
+          Plugin.ContentPage(SITE_MODE === "hidden" ? hiddenPageLayout : teaserPageLayout),
           Plugin.EmptyContentIndex(),
           Plugin.Static(),
           Plugin.Favicon(),

@@ -85,3 +85,14 @@ export const teaserPageLayout: Partial<FullPageLayout> = {
   pageBody: Component.Teaser({ name: NAME, tagline: TAGLINE, status: "measuring" }),
   footer: Component.Empty(),
 }
+
+// hidden site: a "?" home page with nothing to show (Studio → Site visibility)
+export const hiddenPageLayout: Partial<FullPageLayout> = {
+  ...teaserPageLayout,
+  pageBody: Component.Teaser({
+    name: ["", ""],
+    tagline: "Nothing to show here right now.",
+    status: "",
+    hidden: true,
+  }),
+}
