@@ -12,7 +12,7 @@ import { loadFace, withAlpha } from "./quartz/util/face"
  * MRENTRO_SITE_MODE overrides it; MRENTRO_LAUNCH_MODE="false" means "live" (Studio previews).
  */
 type SiteMode = "live" | "teaser" | "hidden"
-const SITE_MODE_DEFAULT: SiteMode = "teaser"
+const SITE_MODE_DEFAULT: SiteMode = "hidden"
 const SITE_MODE: SiteMode = (() => {
   const env = process.env.MRENTRO_SITE_MODE
   if (env === "live" || env === "teaser" || env === "hidden") return env
