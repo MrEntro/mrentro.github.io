@@ -18,17 +18,26 @@ for i in $(seq 1 20); do
 done
 echo "ok   $base/build.txt -> $sha"
 
-# right after a deploy a CDN edge can briefly answer 403/404 for pages: retry before failing
-for i in $(seq 1 12); do
-  code=$(curl -s -A "$ua" -o /dev/null -w '%{http_code}' --max-time 10 "$base/?ts=$(date +%s)")
-  [[ $code == 200 ]] && break
-  [[ $i == 12 ]] && fail "$base/ returned $code"
+# Right after a deploy a CDN edge can briefly answer 403/404 for pages: retry before failing.
+# A Cloudflare block or bot challenge (403 from Cloudflare) for the runner's IP is not a deploy failure:
+# the build stamp above already came from the new deploy.
+for i in $(seq 1 6); do
+  resp=$(curl -s -A "$ua" -D - -o /dev/null --max-time 10 "$base/?ts=$(date +%s)")
+  code=$(head -1 <<<"$resp" | awk '{print $2}')
+  [[ $code == 200 ]] && { echo "ok   $base/ -> 200"; break; }
+  if [[ $code == 403 ]] && grep -qiE '^(cf-mitigated:|server: cloudflare)' <<<"$resp"; then
+    grep -iE '^(server|cf-mitigated|cf-ray):' <<<"$resp" || true
+    echo "warn $base/ -> 403 Cloudflare challenge for this runner; page check skipped"
+    challenged=1
+    break
+  fi
+  [[ $i == 6 ]] && fail "$base/ returned $code"
   echo "wait $base/ -> $code"
   sleep 10
 done
-echo "ok   $base/ -> 200"
 
 [[ $headers == --no-headers ]] && { echo "smoke test passed (headers not checked)"; exit 0; }
+[[ ${challenged:-} == 1 ]] && fail "cannot check headers: Cloudflare challenges this runner"
 h=$(curl -sI -A "$ua" --max-time 10 "$base/")
 for name in content-security-policy strict-transport-security x-content-type-options \
   x-frame-options referrer-policy permissions-policy cross-origin-opener-policy; do
