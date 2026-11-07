@@ -3,7 +3,8 @@
 services:
   site:
     build: .
-    image: mrentro-site
+    # local: built from this checkout; VPS deploys (deploy.yml) set SITE_IMAGE to the GHCR image
+    image: ${SITE_IMAGE:-mrentro-site}
     restart: unless-stopped
     read_only: true
     tmpfs:

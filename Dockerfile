@@ -7,7 +7,11 @@ COPY package.json package-lock.json .npmrc ./
 RUN npm ci --no-audit --no-fund
 COPY . .
 ENV QUARTZ_ENV=production
-RUN npx quartz build && node deploy/csp.mjs public /csp.conf
+# SITE_URL: host for absolute URLs (empty = mrentro.com); BUILD_SHA: stamp read by smoke tests
+ARG SITE_URL=
+ARG BUILD_SHA=dev
+RUN SITE_URL="$SITE_URL" npx quartz build && echo "$BUILD_SHA" > public/build.txt \
+  && node deploy/csp.mjs public /csp.conf
 
 # ---- serve: unprivileged nginx, static files only ----
 FROM nginxinc/nginx-unprivileged:1.30.6-alpine-slim@sha256:4ac59c85c8c46d9e91eaabd2122cda4923ba380cf11f4138e389f069bcdc77a3

@@ -65,7 +65,8 @@ const config: QuartzConfig = {
         ? { provider: "umami", websiteId: UMAMI_WEBSITE_ID, host: "https://cloud.umami.is" }
         : null,
     locale: "en-US",
-    baseUrl: "mrentro.com",
+    // host without scheme; a staging host builds with its own (SITE_URL=staging.example.com)
+    baseUrl: process.env.SITE_URL?.replace(/^https?:\/\//, "").replace(/\/+$/, "") || "mrentro.com",
     ignorePatterns: ["private", "templates", ".obsidian", "face.json"],
     defaultDateType: "published",
     theme: {

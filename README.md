@@ -44,6 +44,12 @@ The build fails on entries that break these rules. `summary` is also the page's 
 
 `studioPreview: draft` in frontmatter shows a DRAFT badge on the page (`DraftBadge`). Studio sets it on preview copies only; it is never published.
 
+## Hosting
+
+GitHub Pages is primary; Cloudflare Pages, a VPS and shared hosting (SSH/rsync) are prepared and
+off until configured. One build, per-host files from `deploy/headers.mjs`: see
+[docs/HOSTING.md](docs/HOSTING.md).
+
 ## Container (VPS)
 
 ```sh
